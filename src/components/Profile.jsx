@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { auth } from "../firebaseConfig";
 import { onAuthStateChanged } from "firebase/auth";
 import LogoutButton from "./Logout.";
+import { Link } from "react-router-dom";
 
 const Profile = () => {
   const [user, setUser] = useState(null);
@@ -28,8 +29,9 @@ const Profile = () => {
             />
             <p className="text-lg font-semibold">{user.displayName}</p>
             <p className="text-gray-600">{user.email}</p>
-            <div>
+            <div className="flex flex-col gap-2">
                 <LogoutButton/>
+                <Link to='/wishlist'><button className="cursor-pointer bg-blue-600 p-3 rounded hover:bg-blue-800 text-white w-sm">Your wishlist{`>>`}</button></Link>
             </div>
           </div>
         ) : (

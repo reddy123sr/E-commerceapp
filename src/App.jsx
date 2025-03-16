@@ -14,6 +14,7 @@ import Login from './components/Login'
 import Profile from './components/Profile'
 import MyOrders from './components/MyOrders'
 import ProtectedRoute from './components/ProtectRoute'
+import Wishlist from './components/Wishlist'
 const router=createBrowserRouter([
   {
     path:"/",
@@ -54,6 +55,10 @@ const router=createBrowserRouter([
       {
         path:"/profile",
         element:<Profile/>
+      },
+      {
+        path:"/wishlist",
+        element:<Wishlist/>
       },
       {
         element: <ProtectedRoute />,  // Protecting these routes

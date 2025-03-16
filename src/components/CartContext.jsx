@@ -12,6 +12,7 @@ export const useCart = () => {
 
 export const CartProvider=({children})=>{
     const[cart,setCart]=useState([])
+    const[wishlist,setWishlist]=useState([])
     
     const addToCart = (item) => {
         setCart((prevCart) => {
@@ -30,7 +31,21 @@ export const CartProvider=({children})=>{
           }
         });
       };
+      const toggleWishlist = (product) => {
+        setWishlist((prevWishlist) => {
+          console.log("Previous Wishlist:", prevWishlist); // Debugging step
+          let updatedWishlist;
       
+          if (prevWishlist.some((item) => item.id === product.id)) {
+            updatedWishlist = prevWishlist.filter((item) => item.id !== product.id); // Remove product
+          } else {
+            updatedWishlist = [...prevWishlist, product]; // Add new product while keeping previous ones
+          }
+      
+          console.log("Updated Wishlist:", updatedWishlist); // Debugging step
+          return updatedWishlist;
+        });
+      };
     const removeItem=(id)=>{
         setCart((prev)=>prev.filter((item)=>item.id!==id))
     }
@@ -48,7 +63,7 @@ export const CartProvider=({children})=>{
     const cartCount = cart.reduce((total, item) => total + item.quantity, null);
     
     return(
-        <CartContext.Provider value={{cart,addToCart,removeItem,clearCart,cartCount,DecreaseQuantity}}>
+        <CartContext.Provider value={{cart,addToCart,removeItem,clearCart,cartCount,DecreaseQuantity,wishlist,toggleWishlist}}>
             {children}
         </CartContext.Provider>
     )
