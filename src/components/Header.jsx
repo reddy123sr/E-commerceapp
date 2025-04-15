@@ -69,12 +69,12 @@ function Header() {
               
             </>
           ) : (
+            <Link to="/profile">
             <button
-              onClick={handleGoogleLogin}
               className="block md:inline bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-1 rounded-full transition-all mt-2 md:mt-0 mx-auto"
             >
               Login
-            </button>
+            </button></Link>
           )}
 
           <Link className="block md:inline hover:text-blue-600 font-medium py-2 transition-all" to="/about">
