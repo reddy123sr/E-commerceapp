@@ -1,5 +1,4 @@
 import React from 'react'
-import { useCart } from './CartContext';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { removeFromwishlist } from '../redux/wishlistSlice';
