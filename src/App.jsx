@@ -7,7 +7,7 @@ import About from './components/About'
 import Contact from './components/Contact'
 import ProdDetails from './components/ProdDetails'
 import Cart from './components/Cart'
-import { CartProvider } from './components/CartContext'
+
 import Checkout from './components/Checkout'
 import Signup from './components/Signup'
 import Login from './components/Login'
