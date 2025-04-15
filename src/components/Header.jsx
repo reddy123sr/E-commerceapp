@@ -1,19 +1,24 @@
 import { Link } from "react-router-dom";
-import { useCart } from "./CartContext";
-import { useState,useEffect } from "react";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "../firebaseConfig";
-function Header(){
-    const {cart,cartCount}=useCart();
-    const [user, setUser] = useState(null);
+import { useState, useEffect } from "react";
+import { auth, googleProvider } from "../firebaseConfig";
+import { onAuthStateChanged, signOut, signInWithPopup } from "firebase/auth";
+import { useSelector } from "react-redux";
+import { Menu, X } from "lucide-react";
+
+function Header() {
+  const cartItems = useSelector((state) => state.cart.cartItems);
+  const cartCount = cartItems.length;
+
+  const [user, setUser] = useState(null);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
     });
-
     return () => unsubscribe();
   }, []);
+
   const handleGoogleLogin = async () => {
     try {
       await signInWithPopup(auth, googleProvider);
@@ -30,38 +35,67 @@ function Header(){
     }
   };
 
-    return (
-        <header className="Header bg-gray-200 text-black p-4 text-sm
-        flex justify-between">
-        <Link to='/'><h1 className="flex gap-2 font-mono text-3xl cursor-pointer">
-            <img className="w-12 rounded-4xl"
-            src="https://mir-s3-cdn-cf.behance.net/projects/404/c5ce3f121576489.Y3JvcCwxMDgwLDg0NCwwLDExNw.jpg"/>
+  return (
+    <header className="bg-white/80 backdrop-blur-md shadow-lg p-4 sticky top-0 z-50 text-sm border-b border-gray-200">
+      <div className="max-w-7xl mx-auto flex justify-between items-center">
+        {/* Logo */}
+        <Link to="/">
+          <h1 className="flex gap-2 font-bold text-2xl items-center text-blue-700 hover:text-blue-900 transition-all">
+            <img
+              className="w-10 h-10 object-cover rounded-full shadow"
+              src="https://mir-s3-cdn-cf.behance.net/projects/404/c5ce3f121576489.Y3JvcCwxMDgwLDg0NCwwLDExNw.jpg"
+              alt="logo"
+            />
             MyKart
-        </h1></Link>
-        <nav className="my-auto">
-        {user ? (
-          <>
-            <Link to="/profile" className="mx-3 hover:text-orange-400 border  rounded-full px-2 ">
-              {/* <img src={"https://images.rawpixel.com/image_png_social_square/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDIzLTAxL3JtNjA5LXNvbGlkaWNvbi13LTAwMi1wLnBuZw.png"} alt="User" className="w-8 h-8 rounded-full" /> */}
+          </h1>
+        </Link>
+
+        {/* Hamburger icon */}
+        <div className="md:hidden text-3xl text-gray-700 cursor-pointer" onClick={() => setMenuOpen(!menuOpen)}>
+          {menuOpen ? <X size={28} /> : <Menu size={28} />}
+        </div>
+
+        {/* Nav Menu */}
+        <nav
+          className={`${
+            menuOpen ? "block" : "hidden"
+          } absolute top-full right-4 w-[40%] bg-white/90 shadow-lg rounded-lg p-6 text-center md:static md:flex md:items-center md:gap-6 md:p-0 md:bg-transparent md:shadow-none md:rounded-none md:w-auto`}
+        >
+          {user ? (
+            <>
+              <Link className="block md:inline hover:text-blue-600 font-medium py-2 transition-all" to="/profile">
+                👤 {user.displayName || "User"}
+              </Link>
               
-              👤{user.displayName}
-            </Link>
-            
-          </>
-        ) : (
-          <Link to='/profile'><button onClick={handleGoogleLogin} className="bg-blue-500 px-3 py-1 rounded hover:bg-blue-600">
-            Login
-          </button></Link>
-        )}
-            <Link className="mx-3 hover:text-orange-400 border  rounded-full px-2 " to="/about">About</Link>
-            <Link className="mx-3 hover:text-orange-400 border  rounded-full px-2 " to="/contact">Contact</Link>
-            <Link className="mx-3 hover:text-orange-400 border  rounded-full px-2 " to="/cart">
-            🛒Cart
-            <button className="align-top bg-red-600 text-black rounded-full px-2 -my-3">{cartCount}</button>
-            </Link>
-            <Link className="mx-3 hover:text-orange-400 border  rounded-full px-2 " to="/myorders">Orders</Link>
+            </>
+          ) : (
+            <button
+              onClick={handleGoogleLogin}
+              className="block md:inline bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-1 rounded-full transition-all mt-2 md:mt-0 mx-auto"
+            >
+              Login
+            </button>
+          )}
+
+          <Link className="block md:inline hover:text-blue-600 font-medium py-2 transition-all" to="/about">
+            About
+          </Link>
+          <Link className="block md:inline hover:text-blue-600 font-medium py-2 transition-all" to="/contact">
+            Contact
+          </Link>
+          <Link className="block md:inline hover:text-blue-600 font-medium py-2 transition-all flex items-center justify-center" to="/cart">
+            🛒 Cart
+            <span className="bg-red-600 text-white text-xs rounded-full px-2 ml-1">
+              {cartCount}
+            </span>
+          </Link>
+          <Link className="block md:inline hover:text-blue-600 font-medium py-2 transition-all" to="/myorders">
+            Orders
+          </Link>
         </nav>
-        </header>
-    )
-};
+      </div>
+    </header>
+  );
+}
+
 export default Header;

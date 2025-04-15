@@ -1,13 +1,16 @@
-import { useCart } from "../components/CartContext";
 import { auth, db } from "../firebaseConfig";
 import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { collection, addDoc, Timestamp } from "firebase/firestore";
-import { useLocation, useNavigate } from "react-router-dom"; // ✅ Import for redirecting
+import { useLocation, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { clearCart } from "../redux/cartSlice";
 
 const Checkout = () => {
-  const location=useLocation();
-  const { cart, clearCart } = useCart();
+  const location = useLocation();
+  const cartItems = useSelector((state) => state.cart.cartItems);
+  const totalPrice = useSelector((state) => state.cart.totalPrice);
+  const dispatch = useDispatch();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
@@ -16,19 +19,25 @@ const Checkout = () => {
     address: "",
     payment: "Card",
   });
+
   const buyNowProduct = location.state?.buyNowProduct || null;
-  const productsToBuy = buyNowProduct ? [{...buyNowProduct,quantity:1,price:buyNowProduct.price}] : cart;
-  const navigate = useNavigate(); // ✅ For redirecting after order placement
+  const productsToBuy = buyNowProduct
+    ? [{ ...buyNowProduct, quantity: 1, price: buyNowProduct.price }]
+    : cartItems;
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
     });
-
     return () => unsubscribe();
   }, []);
 
-  const totalAmount = productsToBuy.reduce((acc, item) => acc + item.price * (item.quantity || 1), 0);
+  const totalAmount = productsToBuy.reduce(
+    (acc, item) => acc + item.price * (item.quantity || 1),
+    0
+  );
 
   const handleInputChange = (e) => {
     setUserDetails({ ...userDetails, [e.target.name]: e.target.value });
@@ -40,8 +49,8 @@ const Checkout = () => {
       return;
     }
 
-    if (!userDetails.name || !userDetails.address) {
-      alert("Please enter your name and address.");
+    if (!userDetails.name.trim() || !userDetails.address.trim()) {
+      alert("Please fill in all required fields.");
       return;
     }
 
@@ -50,7 +59,7 @@ const Checkout = () => {
     const orderData = {
       userId: user.uid,
       userDetails,
-      products: cart,
+      products: productsToBuy,
       total: totalAmount,
       date: Timestamp.now(),
     };
@@ -58,19 +67,17 @@ const Checkout = () => {
     try {
       await addDoc(collection(db, "orders"), orderData);
       alert("Order placed successfully! 🎉");
+
       if (!buyNowProduct) {
-        clearCart(); // Clear cart only if buying from cart
-    }
+        dispatch(clearCart()); // Only if cart order
+      }
 
       setOrderPlaced(true);
       setLoading(false);
-      
-      clearCart(); // ✅ Clear cart only after order is stored
-      
-      setTimeout(() => {
-        navigate("/myorders"); // ✅ Redirect after 2 seconds
-      }, 2000);
 
+      setTimeout(() => {
+        navigate("/myorders");
+      }, 2000);
     } catch (error) {
       console.error("Order Error:", error);
       alert("Failed to place order.");
@@ -79,8 +86,8 @@ const Checkout = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-gray-100 rounded-lg shadow-md">
-      <h2 className="text-2xl font-semibold mb-4">Checkout</h2>
+    <div className="max-w-2xl mx-auto p-6 bg-gray-100 rounded-lg shadow-md mt-19">
+      <h2 className="text-2xl font-semibold mb-4 text-center">Checkout</h2>
 
       {orderPlaced ? (
         <div className="text-center p-4 bg-green-200 text-green-800 rounded">
@@ -90,7 +97,7 @@ const Checkout = () => {
       ) : (
         <>
           <div className="mb-4">
-            <h3 className="text-lg font-semibold">Order summary:</h3>
+            <h3 className="text-lg font-semibold">Order Summary:</h3>
             {productsToBuy.length === 0 ? (
               <p className="text-red-500">No items in cart!</p>
             ) : (
@@ -106,7 +113,7 @@ const Checkout = () => {
           </div>
 
           <div className="mb-4">
-            <h3 className="text-lg font-semibold">Total Amount: ₹{totalAmount}</h3>
+            <h3 className="text-lg font-semibold">Total Amount: ₹{totalAmount.toFixed(2)}</h3>
           </div>
 
           <div className="mb-4">
@@ -139,7 +146,7 @@ const Checkout = () => {
           </div>
 
           <button
-            className="w-full bg-blue-500 text-white py-2 rounded mt-2 hover:bg-blue-600"
+            className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition"
             onClick={handleOrder}
             disabled={loading}
           >

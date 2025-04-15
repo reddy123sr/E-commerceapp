@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { auth } from "../firebaseConfig";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 
 const Signup = () => {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -10,7 +11,14 @@ const Signup = () => {
   const handleSignup = async (e) => {
     e.preventDefault();
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // Set display name after signup
+      await updateProfile(user, {
+        displayName: name,
+      });
+
       alert("Signup successful! 🎉");
     } catch (err) {
       setError(err.message);
@@ -18,10 +26,17 @@ const Signup = () => {
   };
 
   return (
-    <div className="p-6 max-w-md mx-auto bg-white rounded-lg shadow-md">
+    <div className="p-6 max-w-md mx-auto bg-white rounded-lg shadow-md mt-16">
       <h2 className="text-2xl font-bold mb-4">Signup</h2>
       {error && <p className="text-red-500">{error}</p>}
       <form onSubmit={handleSignup}>
+        <input
+          type="text"
+          placeholder="Name"
+          className="w-full p-2 border rounded mb-2"
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
         <input
           type="email"
           placeholder="Email"

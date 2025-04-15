@@ -15,6 +15,8 @@ import Profile from './components/Profile'
 import MyOrders from './components/MyOrders'
 import ProtectedRoute from './components/ProtectRoute'
 import Wishlist from './components/Wishlist'
+import { Provider } from 'react-redux'
+import store from './redux/store'
 const router=createBrowserRouter([
   {
     path:"/",
@@ -74,9 +76,9 @@ const router=createBrowserRouter([
 
 function App() {
   return (
-  <CartProvider>
+  <Provider store={store}>
   <RouterProvider router={router}/>
-  </CartProvider>
+  </Provider>
   );
 };
 

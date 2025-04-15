@@ -16,7 +16,7 @@ const Profile = () => {
   }, []);
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+    <div className="flex justify-center items-center my-40">
       <div className="p-6 max-w-md bg-white rounded-lg shadow-lg text-center">
         <h2 className="text-2xl font-bold mb-4">My Profile</h2>
         

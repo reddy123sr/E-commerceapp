@@ -9,7 +9,7 @@ const Layout = () => {
         <div className='fixed min-w-screen'>
         <Header/>
         </div>
-        <div className='flex-grow mt-20'>
+        <div className='flex-grow'>
             <Outlet/>
         </div>
         <Footer/>
